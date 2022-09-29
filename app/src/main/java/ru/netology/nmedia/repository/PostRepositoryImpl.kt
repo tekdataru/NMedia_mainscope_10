@@ -77,7 +77,6 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         val postEntityBuf = dao.getPostById(id)
 
         try {
-            //val postFromServer = PostsApi.service.getById(id).body()
 
             dao.likeById(id, setLikes, setLikedByMe)
 
@@ -95,6 +94,15 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
                     throw ApiError(response2.code(), response2.message())
                 }
             }
+
+            val response3 = PostsApi.service.getById(id)
+
+            if (!response3.isSuccessful) {
+                throw ApiError(response3.code(), response3.message())
+            }
+            val postFromServer = response3.body()
+            postFromServer?.let { dao.insert(PostEntity.fromDto(it)) }
+
 
 
         } catch (e: Throwable) {
