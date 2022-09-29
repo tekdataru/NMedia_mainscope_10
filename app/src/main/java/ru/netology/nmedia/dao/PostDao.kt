@@ -27,5 +27,8 @@ interface PostDao {
     @Query("UPDATE PostEntity SET likedByMe = :setLikedByMe, likes= :setLikes WHERE id = :id")
     suspend fun likeById(id: Long, setLikes: Int, setLikedByMe: Int)
 
+    @Query("SELECT * FROM PostEntity WHERE id = :id")
+    suspend fun getPostById(id: Long): PostEntity
+
 
 }

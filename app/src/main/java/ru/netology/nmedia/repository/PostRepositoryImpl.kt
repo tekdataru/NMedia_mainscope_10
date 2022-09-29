@@ -1,5 +1,6 @@
 package ru.netology.nmedia.repository
 
+import android.widget.Toast
 import androidx.lifecycle.*
 import okio.IOException
 import ru.netology.nmedia.api.*
@@ -49,7 +50,11 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun removeById(id: Long) {
 
+        val postEntityBuf = dao.getPostById(id)
+
         try {
+
+
             dao.removeById(id)
 
             val response = PostsApi.service.removeById(id)
@@ -57,13 +62,23 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
                 throw ApiError(response.code(), response.message())
             }
 
-        } catch (e: Throwable) {
+        } catch (e: RuntimeException) {
+            dao.insert(postEntityBuf)
 
+        }     catch (e: Throwable) {
+            //val a = 111
+            dao.insert(postEntityBuf)
+            //Toast.makeText(this, "afasdf", Toast.LENGTH_LONG).show()
         }
     }
 
     override suspend fun likeById(id: Long, setLikes: Int, setLikedByMe: Int) {
+
+        val postEntityBuf = dao.getPostById(id)
+
         try {
+            //val postFromServer = PostsApi.service.getById(id).body()
+
             dao.likeById(id, setLikes, setLikedByMe)
 
             if (setLikedByMe == 1) {
@@ -83,7 +98,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
 
         } catch (e: Throwable) {
-
+            dao.insert(postEntityBuf)
         }
     }
 }
